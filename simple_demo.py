@@ -1,19 +1,8 @@
-"""
-Simple Face Detection Demo using OpenCV (Alternative to dlib)
-This version doesn't require dlib and can work as a fallback option.
-"""
-
 import cv2
 import time
-import datetime
 import numpy as np
 
 class SimpleFaceTracker:
-    """
-    A simplified face and eye tracking system using OpenCV's built-in classifiers
-    This is a fallback option when dlib is not available.
-    """
-    
     def __init__(self):
         # Load OpenCV's pre-trained classifiers
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -25,12 +14,6 @@ class SimpleFaceTracker:
         self.frame = None
         
     def refresh(self, frame):
-        """
-        Analyze a new frame for faces and eyes
-        
-        Args:
-            frame: Input video frame (BGR format)
-        """
         self.frame = frame.copy()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
@@ -71,10 +54,6 @@ class SimpleFaceTracker:
         return eye_centers
     
     def estimate_gaze_direction(self):
-        """
-        Estimate gaze direction based on eye positions relative to face
-        This is a simplified approach compared to pupil tracking
-        """
         if not self.has_face_detected() or not self.has_eyes_detected():
             return "unknown"
         
@@ -105,9 +84,6 @@ class SimpleFaceTracker:
             return "center"
     
     def annotated_frame(self):
-        """
-        Return the frame with detected faces and eyes highlighted
-        """
         if self.frame is None:
             return np.zeros((480, 640, 3), dtype=np.uint8)
         
@@ -126,9 +102,6 @@ class SimpleFaceTracker:
         return annotated
 
 def main():
-    """
-    Main function for the simplified face tracking demo
-    """
     print("Simple Face Tracking Demo (OpenCV-based)")
     print("This is a fallback version that doesn't require dlib")
     print("Press ESC to exit")

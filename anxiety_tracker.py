@@ -1,9 +1,3 @@
-"""
-Social Anxiety Tracking - Proof of Concept
-Advanced social anxiety detection using precise gaze tracking with dlib.
-Requires dlib for accurate pupil detection and facial landmark analysis.
-"""
-
 import cv2
 import tkinter as tk
 from tkinter import messagebox
@@ -14,10 +8,6 @@ from pathlib import Path
 from gaze_tracking import GazeTracking
 
 class PreciseGazeCalibrator:
-    """
-    5-point calibration system for precise gaze tracking using dlib
-    """
-    
     def __init__(self, screen_width=1920, screen_height=1080):
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -30,7 +20,6 @@ class PreciseGazeCalibrator:
         self.calibration_duration_per_point = 4.0  # seconds
         
     def run_calibration(self):
-        """Run precise 5-point calibration with quality checks"""
         print("Starting precision calibration with dlib...")
         
         # Define 5 calibration points covering screen area
@@ -234,10 +223,6 @@ class PreciseGazeCalibrator:
         return None
 
 class AdvancedAnxietyDetector:
-    """
-    Advanced anxiety detection using dlib's precise gaze tracking
-    """
-    
     def __init__(self):
         # Tracking variables
         self.blink_count = 0
@@ -271,7 +256,6 @@ class AdvancedAnxietyDetector:
         self.max_history = 10
         
     def analyze_frame(self, gaze_tracker, gaze_position=None):
-        """Advanced frame analysis using dlib's precise tracking"""
         self.frame_count += 1
         current_time = time.time()
         
@@ -329,7 +313,6 @@ class AdvancedAnxietyDetector:
                 self.edge_gaze_count += 1
 
     def get_comprehensive_assessment(self):
-        """Get detailed anxiety assessment using all available metrics"""
         session_duration = (time.time() - self.session_start) / 60  # minutes
         
         # Calculate advanced metrics

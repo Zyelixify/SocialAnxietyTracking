@@ -1,9 +1,3 @@
-"""
-Social Anxiety Tracking - Calibration and Detection System
-A proof-of-concept application for detecting social anxiety indicators
-through gaze patterns and eye movement analysis.
-"""
-
 import cv2
 import tkinter as tk
 from tkinter import messagebox
@@ -15,10 +9,6 @@ from gaze_tracking import GazeTracking
 import threading
 
 class GazeCalibrator:
-    """
-    Handles gaze calibration using 5-point screen mapping
-    """
-    
     def __init__(self, screen_width=1920, screen_height=1080):
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -31,7 +21,6 @@ class GazeCalibrator:
         self.model_y = None
         
     def _generate_calibration_points(self):
-        """Generate 5 calibration points: center and four corners"""
         margin = 100  # Pixels from edge
         points = [
             (self.screen_width // 2, self.screen_height // 2),  # Center
@@ -43,7 +32,6 @@ class GazeCalibrator:
         return points
     
     def run_calibration(self):
-        """Run the calibration process"""
         print("Starting gaze calibration...")
         
         # Initialize webcam
@@ -94,7 +82,6 @@ class GazeCalibrator:
             return False
     
     def _collect_samples_for_point(self, screen_x, screen_y, duration=3.0, max_samples=10):
-        """Collect pupil samples for a specific calibration point"""
         samples = []
         start_time = time.time()
         
@@ -120,7 +107,6 @@ class GazeCalibrator:
         return samples
     
     def _train_calibration_models(self):
-        """Train linear regression models for pupil-to-screen mapping"""
         if len(self.pupil_data) < 3:
             return False
             
@@ -137,7 +123,6 @@ class GazeCalibrator:
         return True
     
     def predict_gaze_position(self, left_pupil, right_pupil):
-        """Predict screen gaze position from pupil coordinates"""
         if not (self.model_x and self.model_y and left_pupil and right_pupil):
             return None
             
@@ -152,10 +137,6 @@ class GazeCalibrator:
         return (int(screen_x), int(screen_y))
 
 class SocialAnxietyDetector:
-    """
-    Detects social anxiety indicators based on predefined gaze patterns
-    """
-    
     def __init__(self):
         self.blink_count = 0
         self.blink_timestamps = []
@@ -169,7 +150,6 @@ class SocialAnxietyDetector:
         self.rapid_movement_threshold = 100  # pixels per frame
         
     def analyze_frame(self, gaze_tracker, gaze_position=None):
-        """Analyze current frame for anxiety indicators"""
         current_time = time.time()
         
         # Track blinking
@@ -191,20 +171,17 @@ class SocialAnxietyDetector:
                 self.avoidance_count += 1
     
     def get_blink_rate(self):
-        """Calculate blinks per minute"""
         session_duration = (time.time() - self.session_start) / 60  # minutes
         if session_duration > 0:
             return self.blink_count / session_duration
         return 0
     
     def get_gaze_avoidance_ratio(self):
-        """Calculate ratio of time spent looking away from center"""
         if not self.gaze_positions:
             return 0
         return self.avoidance_count / len(self.gaze_positions)
     
     def detect_anxiety_indicators(self):
-        """Detect social anxiety indicators and return assessment"""
         blink_rate = self.get_blink_rate()
         avoidance_ratio = self.get_gaze_avoidance_ratio()
         
@@ -257,10 +234,6 @@ class SocialAnxietyDetector:
             return "No significant anxiety indicators"
 
 class SocialAnxietyApp:
-    """
-    Main application for social anxiety tracking
-    """
-    
     def __init__(self):
         self.calibrator = GazeCalibrator()
         self.detector = SocialAnxietyDetector()
@@ -269,7 +242,6 @@ class SocialAnxietyApp:
         self.is_running = False
         
     def run_calibration(self):
-        """Run the calibration process"""
         messagebox.showinfo("Calibration", 
                            "Gaze calibration will start.\n\n"
                            "Look at each red dot that appears on screen.\n"
@@ -286,7 +258,6 @@ class SocialAnxietyApp:
             return False
     
     def start_monitoring(self):
-        """Start the anxiety monitoring session"""
         self.webcam = cv2.VideoCapture(0)
         if not self.webcam.isOpened():
             messagebox.showerror("Error", "Could not open webcam")
@@ -335,7 +306,6 @@ class SocialAnxietyApp:
             self._show_final_assessment()
     
     def _create_display_frame(self, frame, gaze_position):
-        """Create display frame with overlays"""
         display_frame = self.gaze_tracker.annotated_frame()
         
         # Add status information
@@ -369,7 +339,6 @@ class SocialAnxietyApp:
         return display_frame
     
     def _show_final_assessment(self):
-        """Show final anxiety assessment"""
         assessment = self.detector.detect_anxiety_indicators()
         
         result_text = f"Session Assessment:\n\n"
@@ -388,7 +357,6 @@ class SocialAnxietyApp:
         messagebox.showinfo("Assessment Results", result_text)
 
 def main():
-    """Main application entry point"""
     print("Social Anxiety Tracking - Proof of Concept")
     print("==========================================")
     

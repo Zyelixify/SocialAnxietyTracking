@@ -1,20 +1,8 @@
-"""
-Social Anxiety Tracking - Main Demo
-Based on the GazeTracking library by Antoine Lamé
-
-This script demonstrates real-time eye tracking and gaze direction detection,
-which can be used for social anxiety research and tracking applications.
-"""
-
 import cv2
 import time
-import datetime
 from gaze_tracking import GazeTracking
 
 def main():
-    """
-    Main function that runs the gaze tracking demo
-    """
     # Initialize the gaze tracking object
     gaze = GazeTracking()
     

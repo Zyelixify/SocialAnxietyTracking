@@ -11,10 +11,7 @@ import time
 from gaze_tracking import GazeTracking
 
 class GazeDataCollector:
-    """
-    A class to collect and store gaze tracking data for analysis
-    """
-    
+   
     def __init__(self, participant_id=None, session_name=None):
         self.participant_id = participant_id or f"participant_{int(time.time())}"
         self.session_name = session_name or f"session_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -32,7 +29,6 @@ class GazeDataCollector:
         self.setup_csv_file()
         
     def setup_csv_file(self):
-        """Initialize CSV file with headers"""
         with open(self.csv_filename, 'w', newline='') as csvfile:
             fieldnames = [
                 'timestamp', 'session_time', 'gaze_direction', 'is_blinking',
@@ -43,12 +39,6 @@ class GazeDataCollector:
             writer.writeheader()
     
     def collect_frame_data(self, gaze):
-        """
-        Collect data from a single frame and store it
-        
-        Args:
-            gaze: GazeTracking object with current frame analysis
-        """
         current_time = time.time()
         session_time = current_time - self.session_start_time
         
@@ -92,7 +82,6 @@ class GazeDataCollector:
             writer.writerow(data_record)
     
     def save_session_summary(self):
-        """Save a summary of the session as JSON"""
         session_summary = {
             'participant_id': self.participant_id,
             'session_name': self.session_name,
@@ -127,13 +116,6 @@ class GazeDataCollector:
         return session_summary
 
 def run_data_collection_session(participant_id=None, duration_minutes=5):
-    """
-    Run a data collection session for specified duration
-    
-    Args:
-        participant_id: Unique identifier for the participant
-        duration_minutes: Duration of the session in minutes
-    """
     print(f"Starting data collection session for {duration_minutes} minutes")
     
     # Initialize components
