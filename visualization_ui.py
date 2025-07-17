@@ -1,17 +1,9 @@
-"""
-Visualization and UI Module
-Plots recorded information and displays it in a clear, concise manner using Tkinter.
-Backs the Calibration Module with displaying calibration points and shows test results 
-with messages of encouragement to the user.
-"""
-
 import tkinter as tk
 from tkinter import messagebox, ttk
 import cv2
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class VisualizationUI:
@@ -61,7 +53,6 @@ class VisualizationUI:
         return calibration_module.complete_calibration(successful_points)
     
     def _display_calibration_point(self, x, y, point_num):
-        """Display a single calibration point with instructions"""
         self.canvas.delete("all")
         
         # Draw calibration point
@@ -81,19 +72,16 @@ class VisualizationUI:
         self.root.update()
     
     def _show_success_feedback(self, x, y):
-        """Show success feedback for calibration point"""
         self.canvas.create_text(x, y+100, text="✓ Success!", 
                                fill='green', font=('Arial', 14, 'bold'))
         self.root.update()
     
     def _show_failure_feedback(self, x, y):
-        """Show failure feedback for calibration point"""
         self.canvas.create_text(x, y+100, text="✗ Failed", 
                                fill='red', font=('Arial', 14, 'bold'))
         self.root.update()
     
     def show_calibration_prompt(self):
-        """Show calibration prompt dialog"""
         root = tk.Tk()
         root.withdraw()
         
@@ -107,7 +95,6 @@ class VisualizationUI:
         return response
     
     def create_monitoring_display(self, frame, gaze_position, analysis_data):
-        """Create the monitoring display with real-time information"""
         display_frame = frame.copy()
         
         # Status info
@@ -140,7 +127,6 @@ class VisualizationUI:
         return display_frame
     
     def show_results_dialog(self, analysis_data):
-        """Display comprehensive results with encouragement messages"""
         root = tk.Tk()
         root.title("Session Results")
         root.geometry("600x700")
@@ -183,7 +169,6 @@ class VisualizationUI:
         root.mainloop()
     
     def _format_results_text(self, analysis_data):
-        """Format the results text for display"""
         result = f"Session Results:\n"
         result += f"Duration: {analysis_data.get('session_duration', 0):.1f} minutes\n\n"
         result += f"Assessment: {analysis_data.get('assessment', 'Unknown')}\n"
@@ -211,7 +196,6 @@ class VisualizationUI:
         return result
     
     def _generate_encouragement_message(self, analysis_data):
-        """Generate personalized encouragement message based on results"""
         anxiety_score = analysis_data.get('anxiety_score', 0)
         max_score = analysis_data.get('max_score', 15)
         center_focus = analysis_data.get('center_gaze_ratio', 0)
@@ -235,7 +219,6 @@ class VisualizationUI:
             return "💝 Thank you for completing this challenging session. High anxiety is manageable with proper support and practice. Consider discussing these results with a counselor."
     
     def show_monitoring_prompt(self):
-        """Show monitoring start prompt"""
         root = tk.Tk()
         root.withdraw()
         
@@ -247,21 +230,18 @@ class VisualizationUI:
         return response
     
     def show_error_message(self, title, message):
-        """Show error message dialog"""
         root = tk.Tk()
         root.withdraw()
         messagebox.showerror(title, message)
         root.destroy()
     
     def show_info_message(self, title, message):
-        """Show info message dialog"""
         root = tk.Tk()
         root.withdraw()
         messagebox.showinfo(title, message)
         root.destroy()
     
     def create_visualization_plots(self, analysis_data):
-        """Create matplotlib visualizations of the data"""
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 8))
         fig.suptitle('Social Anxiety Tracking Results', fontsize=16)
         

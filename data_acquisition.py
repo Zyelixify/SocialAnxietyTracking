@@ -1,9 +1,3 @@
-"""
-Data Acquisition Module
-Captures video from camera using OpenCV's CV2, accesses webcam, 
-initializes GazeTracking, and extracts raw pupil and gaze data.
-"""
-
 import cv2
 import time
 from gaze_tracking import GazeTracking
@@ -16,29 +10,22 @@ class DataAcquisition:
         self.is_running = False
         
     def initialize_camera(self):
-        """Initialize the webcam for video capture"""
         self.webcam = cv2.VideoCapture(0)
         if not self.webcam.isOpened():
             raise RuntimeError("Could not open webcam")
         return True
     
     def start_acquisition(self):
-        """Start the data acquisition process"""
         if not self.webcam:
             self.initialize_camera()
         self.is_running = True
         
     def stop_acquisition(self):
-        """Stop the data acquisition process"""
         self.is_running = False
         if self.webcam:
             self.webcam.release()
             
     def get_frame_data(self):
-        """
-        Capture a single frame and extract gaze data
-        Returns: dict with frame data and gaze information
-        """
         if not self.webcam or not self.is_running:
             return None
             
@@ -70,14 +57,11 @@ class DataAcquisition:
         return frame_data
     
     def get_gaze_tracker(self):
-        """Return the GazeTracking instance for external use"""
         return self.gaze_tracker
     
     def is_camera_ready(self):
-        """Check if camera is initialized and ready"""
         return self.webcam is not None and self.webcam.isOpened()
     
     def cleanup(self):
-        """Clean up resources"""
         self.stop_acquisition()
         cv2.destroyAllWindows()

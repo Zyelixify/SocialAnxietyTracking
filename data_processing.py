@@ -1,10 +1,3 @@
-"""
-Data Processing Module
-Preprocesses and analyses gaze and pupil data, extracts useful data points 
-to supplement therapy. Smoothes data, compares with calibrated screen information,
-calculates frequency and accuracy of center gaze, look-away patterns, etc.
-"""
-
 import time
 import numpy as np
 from collections import deque
@@ -48,7 +41,6 @@ class DataProcessing:
         self.smoothed_positions = deque(maxlen=self.gaze_smoothing_window)
         
     def smooth_gaze_data(self, gaze_position):
-        """Apply smoothing to reduce noise in gaze data"""
         if gaze_position is None:
             return None
             
@@ -64,7 +56,6 @@ class DataProcessing:
         return (int(avg_x), int(avg_y))
     
     def process_blink_data(self, frame_data):
-        """Process blink information with precise timing"""
         current_time = frame_data['timestamp']
         currently_blinking = frame_data['is_blinking']
         
@@ -84,7 +75,6 @@ class DataProcessing:
             self.blink_start_time = None
     
     def process_gaze_position(self, gaze_position, timestamp):
-        """Process gaze position data and extract movement patterns"""
         if gaze_position is None:
             return
             
@@ -117,7 +107,6 @@ class DataProcessing:
         self._analyze_gaze_zones(smoothed_position)
     
     def _analyze_gaze_zones(self, gaze_position):
-        """Analyze which zone the user is looking at"""
         # Distance from center
         center_distance = np.sqrt((gaze_position[0] - self.screen_center_x)**2 + 
                                 (gaze_position[1] - self.screen_center_y)**2)
@@ -133,7 +122,6 @@ class DataProcessing:
             self.edge_gaze_count += 1
     
     def process_frame(self, frame_data, gaze_position=None):
-        """Process a complete frame of data"""
         self.frame_count += 1
         
         # Process blink data
@@ -144,7 +132,6 @@ class DataProcessing:
             self.process_gaze_position(gaze_position, frame_data['timestamp'])
     
     def calculate_center_gaze_accuracy(self):
-        """Calculate how accurately the user maintains center gaze"""
         if not self.gaze_positions:
             return 0.0
             
@@ -165,7 +152,6 @@ class DataProcessing:
         return max(0.0, accuracy)
     
     def calculate_look_away_frequency(self):
-        """Calculate how frequently the user looks away from center"""
         if len(self.gaze_positions) < 2:
             return 0.0
             
@@ -186,7 +172,6 @@ class DataProcessing:
         return look_away_events / max(0.1, session_duration)  # events per minute
     
     def get_comprehensive_analysis(self):
-        """Get comprehensive analysis of all processed data"""
         session_duration = (time.time() - self.session_start) / 60  # minutes
         
         # Calculate metrics
@@ -289,7 +274,6 @@ class DataProcessing:
         }
     
     def reset_session(self):
-        """Reset all session data for a new analysis"""
         self.blink_count = 0
         self.gaze_positions = []
         self.gaze_velocities = []

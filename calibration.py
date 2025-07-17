@@ -1,10 +1,3 @@
-"""
-Calibration Module
-Maps pupil coordinates to screen coordinates. Displays 5 different points 
-on screen where gaze must be held for either 3 seconds or long enough 
-for 10 samples to be taken.
-"""
-
 import time
 import json
 import numpy as np
@@ -24,7 +17,6 @@ class CalibrationModule:
         self.outlier_threshold = 20  # pixels
         
     def get_calibration_points(self):
-        """Define 5 calibration points covering screen area"""
         margin = 150
         points = [
             (self.screen_width // 2, self.screen_height // 2),  # Center
@@ -36,10 +28,6 @@ class CalibrationModule:
         return points
     
     def collect_samples_for_point(self, data_acquisition, point_x, point_y):
-        """
-        Collect calibration samples for a specific point
-        Continues until either 10 samples or 3 seconds elapsed
-        """
         samples = []
         start_time = time.time()
         
@@ -65,7 +53,6 @@ class CalibrationModule:
         return samples
     
     def filter_outliers(self, samples):
-        """Remove outlier samples using median-based filtering"""
         if len(samples) < 3:
             return samples
             
@@ -85,7 +72,6 @@ class CalibrationModule:
         return filtered_samples
     
     def process_calibration_point(self, samples, screen_x, screen_y):
-        """Process samples for a calibration point and add to calibration data"""
         if len(samples) < 5:  # Minimum quality threshold
             return False
             
@@ -106,7 +92,6 @@ class CalibrationModule:
         return False
     
     def complete_calibration(self, successful_points):
-        """Complete calibration if enough points were successful"""
         if successful_points >= 4:  # Need at least 4 good points
             self.is_calibrated = True
             self.save_calibration()
@@ -116,7 +101,6 @@ class CalibrationModule:
             return False
     
     def predict_gaze_position(self, left_pupil, right_pupil, gaze_tracker):
-        """Map pupil coordinates to screen coordinates using calibration data"""
         if not self.is_calibrated or not left_pupil or not right_pupil:
             return None
         
@@ -171,7 +155,6 @@ class CalibrationModule:
         return None
     
     def save_calibration(self):
-        """Save calibration data to file"""
         calibration_file = Path("calibration_data.json")
         data = {
             'screen_width': self.screen_width,
@@ -185,7 +168,6 @@ class CalibrationModule:
         print(f"Calibration saved to {calibration_file}")
     
     def load_calibration(self):
-        """Load previous calibration data"""
         calibration_file = Path("calibration_data.json")
         if calibration_file.exists():
             try:
@@ -206,12 +188,10 @@ class CalibrationModule:
         return False
     
     def reset_calibration(self):
-        """Reset calibration data"""
         self.calibration_data = []
         self.is_calibrated = False
     
     def get_calibration_status(self):
-        """Get calibration status information"""
         return {
             'is_calibrated': self.is_calibrated,
             'num_points': len(self.calibration_data),
