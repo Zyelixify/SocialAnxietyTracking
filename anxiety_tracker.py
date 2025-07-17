@@ -224,14 +224,17 @@ class PreciseGazeCalibrator:
 
 class AdvancedAnxietyDetector:
     def __init__(self):
-        # Tracking variables
+        # Core tracking
         self.blink_count = 0
-        self.blink_durations = []
-        self.last_blink_time = 0
         self.gaze_positions = []
         self.gaze_velocities = []
-        self.fixation_times = []
         self.saccade_count = 0
+        
+        # Precise blink tracking
+        self.blink_durations = []
+        self.last_blink_time = None
+        self.is_currently_blinking = False
+        self.blink_start_time = None
         
         # Session tracking
         self.session_start = time.time()
@@ -239,15 +242,11 @@ class AdvancedAnxietyDetector:
         self.center_gaze_count = 0
         self.edge_gaze_count = 0
         
-        # Enhanced thresholds based on research
-        self.normal_blink_rate = 17  # Average: 15-20 blinks per minute
-        self.anxiety_blink_rate = 30  # Anxiety indicator: >30 blinks per minute
-        self.normal_saccade_rate = 3  # Normal: 3-4 saccades per second
-        self.anxiety_saccade_rate = 6  # Anxiety: >6 saccades per second
-        
-        # Gaze pattern thresholds
-        self.center_zone_radius = 200  # Pixels from screen center
-        self.edge_zone_margin = 100    # Pixels from screen edges
+        # Thresholds
+        self.anxiety_blink_rate = 30  # blinks per minute
+        self.anxiety_saccade_rate = 6  # saccades per second
+        self.center_zone_radius = 200  # pixels from center
+        self.edge_zone_margin = 100   # pixels from edges
         self.fixation_threshold = 50   # Pixels for fixation detection
         self.min_fixation_duration = 0.2  # Minimum fixation time in seconds
         
@@ -259,17 +258,23 @@ class AdvancedAnxietyDetector:
         self.frame_count += 1
         current_time = time.time()
         
-        # Enhanced blink detection with duration tracking
-        if gaze_tracker.is_blinking():
-            if self.last_blink_time == 0:  # Start of blink
+        # Precise blink tracking with duration analysis
+        currently_blinking = gaze_tracker.is_blinking()
+        
+        if currently_blinking and not self.is_currently_blinking:
+            # Blink started
+            self.blink_start_time = current_time
+            self.is_currently_blinking = True
+            
+        elif not currently_blinking and self.is_currently_blinking:
+            # Blink ended
+            if self.blink_start_time:
+                blink_duration = current_time - self.blink_start_time
+                self.blink_durations.append(blink_duration)
+                self.blink_count += 1
                 self.last_blink_time = current_time
-        else:
-            if self.last_blink_time > 0:  # End of blink
-                blink_duration = current_time - self.last_blink_time
-                if blink_duration > 0.1:  # Valid blink (>100ms)
-                    self.blink_count += 1
-                    self.blink_durations.append(blink_duration)
-                self.last_blink_time = 0
+            self.is_currently_blinking = False
+            self.blink_start_time = None
         
         # Advanced gaze position analysis
         if gaze_position:
@@ -325,9 +330,12 @@ class AdvancedAnxietyDetector:
         # Average gaze velocity
         avg_velocity = np.mean(self.gaze_velocities) if self.gaze_velocities else 0
         
-        # Blink pattern analysis
+        # Enhanced blink analysis
         avg_blink_duration = np.mean(self.blink_durations) if self.blink_durations else 0
-        blink_variability = np.std(self.blink_durations) if len(self.blink_durations) > 1 else 0
+        blink_frequency_variance = np.var([
+            self.blink_durations[i] - self.blink_durations[i-1] 
+            for i in range(1, len(self.blink_durations))
+        ]) if len(self.blink_durations) > 1 else 0
         
         # Anxiety scoring system
         anxiety_indicators = []
@@ -335,10 +343,24 @@ class AdvancedAnxietyDetector:
         
         # Blink rate analysis
         if blink_rate > self.anxiety_blink_rate:
-            anxiety_indicators.append(f"High blink rate: {blink_rate:.1f}/min (normal: ~{self.normal_blink_rate}/min)")
+            anxiety_indicators.append(f"High blink rate: {blink_rate:.1f}/min (normal: ~15-20/min)")
             anxiety_score += 3
         elif blink_rate < 8:
             anxiety_indicators.append(f"Very low blink rate: {blink_rate:.1f}/min (may indicate stress)")
+            anxiety_score += 1
+        
+        # Blink duration analysis (anxiety can cause shorter, more frequent blinks)
+        if avg_blink_duration > 0:
+            if avg_blink_duration < 0.1:  # Very short blinks
+                anxiety_indicators.append(f"Rapid blinking pattern: {avg_blink_duration:.3f}s avg duration")
+                anxiety_score += 2
+            elif avg_blink_duration > 0.5:  # Unusually long blinks
+                anxiety_indicators.append(f"Prolonged blinks: {avg_blink_duration:.3f}s avg duration")
+                anxiety_score += 1
+        
+        # Blink pattern irregularity
+        if blink_frequency_variance > 0.2:
+            anxiety_indicators.append(f"Irregular blink patterns detected")
             anxiety_score += 1
         
         # Saccade rate analysis
@@ -377,9 +399,11 @@ class AdvancedAnxietyDetector:
         return {
             'assessment': assessment,
             'anxiety_score': anxiety_score,
-            'max_score': 12,
+            'max_score': 15,
             'session_duration': session_duration,
             'blink_rate': blink_rate,
+            'avg_blink_duration': avg_blink_duration,
+            'blink_count': self.blink_count,
             'center_gaze_ratio': center_gaze_ratio,
             'edge_gaze_ratio': edge_gaze_ratio,
             'saccade_rate': saccade_rate,
@@ -487,7 +511,8 @@ class SocialAnxietyApp:
         result += f"Assessment: {assessment['assessment']}\n"
         result += f"Anxiety Score: {assessment['anxiety_score']}/{assessment['max_score']}\n\n"
         result += f"Detailed Metrics:\n"
-        result += f"• Blink Rate: {assessment['blink_rate']:.1f}/min\n"
+        result += f"• Blinks: {assessment['blink_count']} total ({assessment['blink_rate']:.1f}/min)\n"
+        result += f"• Avg Blink Duration: {assessment['avg_blink_duration']:.3f}s\n"
         result += f"• Center Focus: {assessment['center_gaze_ratio']:.1%}\n"
         result += f"• Edge Focus: {assessment['edge_gaze_ratio']:.1%}\n"
         result += f"• Saccade Rate: {assessment['saccade_rate']:.1f}/min\n"
