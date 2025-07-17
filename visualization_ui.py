@@ -14,7 +14,6 @@ class VisualizationUI:
         self.canvas = None
         
     def show_calibration_interface(self, calibration_module, data_acquisition):
-        """Display calibration interface with 5 points"""
         self.root = tk.Tk()
         self.root.title("Precision Gaze Calibration")
         self.root.attributes('-fullscreen', True)
@@ -33,7 +32,7 @@ class VisualizationUI:
             self._display_calibration_point(x, y, i+1)
             
             # Allow time for user to focus
-            time.sleep(1.5)
+            time.sleep(3)
             
             # Collect samples
             samples = calibration_module.collect_samples_for_point(data_acquisition, x, y)

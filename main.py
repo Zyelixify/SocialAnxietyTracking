@@ -8,6 +8,7 @@ from visualization_ui import VisualizationUI
 
 class SocialAnxietyTracker:
     def __init__(self, screen_width=1920, screen_height=1080):
+
         # Initialize all modules
         self.data_acquisition = DataAcquisition()
         self.calibration = CalibrationModule(screen_width, screen_height)
@@ -18,7 +19,6 @@ class SocialAnxietyTracker:
         self.is_monitoring = False
         
     def run_calibration_process(self):
-        """Run the complete calibration process"""
         print("Starting calibration process...")
         
         # Check if user wants to calibrate
@@ -55,7 +55,7 @@ class SocialAnxietyTracker:
             self.data_acquisition.stop_acquisition()
     
     def start_monitoring_session(self):
-        """Start the main monitoring session"""
+        # Start monitoring session
         if not self.ui.show_monitoring_prompt():
             return
         
@@ -71,7 +71,6 @@ class SocialAnxietyTracker:
             print("Starting anxiety monitoring...")
             print("Press ESC to stop monitoring")
             
-            # Main monitoring loop
             while self.is_monitoring:
                 # Get frame data from acquisition module
                 frame_data = self.data_acquisition.get_frame_data()
@@ -96,7 +95,6 @@ class SocialAnxietyTracker:
                 current_analysis = self.data_processing.get_comprehensive_analysis()
                 current_analysis['pupils_located'] = frame_data['pupils_located']
                 
-                # Create display frame
                 display_frame = self.ui.create_monitoring_display(
                     frame_data['annotated_frame'], gaze_position, current_analysis
                 )
@@ -119,8 +117,7 @@ class SocialAnxietyTracker:
             self._show_session_results()
     
     def _show_session_results(self):
-        """Display session results using UI module"""
-        # Get comprehensive analysis from data processing
+        # Get  analysis from data processing
         analysis_results = self.data_processing.get_comprehensive_analysis()
         
         # Show results dialog with encouragement
@@ -136,7 +133,6 @@ class SocialAnxietyTracker:
             print(f"Could not create visualization plots: {e}")
     
     def run_complete_session(self):
-        """Run a complete session: calibration + monitoring"""
         print("Social Anxiety Tracker - Proof of Concept")
         print("=========================================")
         
@@ -165,8 +161,6 @@ class SocialAnxietyTracker:
 
 
 def main():
-    """Main entry point"""
-    # Create and run the application
     app = SocialAnxietyTracker()
     app.run_complete_session()
 
