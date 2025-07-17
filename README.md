@@ -1,39 +1,31 @@
-# Social Anxiety Tracker
+# Eye Tracker for Social Anxiety
 
-A modular application for tracking social anxiety indicators through gaze and eye movement analysis.
+A simple app that tracks eye movements to detect signs of social anxiety.
 
-## Module Architecture
+## How it works
 
-### 1. Data Acquisition Module (`data_acquisition.py`)
-**Purpose**: Captures video from camera using OpenCV's CV2
-- Accesses webcam and initializes GazeTracking
-- Extracts raw pupil and gaze data from video frames
-- Provides real-time frame processing with timestamp information
-- Returns structured data including pupil coordinates, gaze ratios, and blink status
+### 1. Data Collection (`data_acquisition.py`)
+- Uses your webcam to track your eyes
+- Gets pupil positions and detects blinks
+- Processes video frames in real-time
 
-### 2. Calibration Module (`calibration.py`) 
-**Purpose**: Maps pupil coordinates to screen coordinates
-- Displays 5 calibration points on screen (center + 4 corners)
-- Holds gaze at each point for either 3 seconds OR until 10 samples collected
-- Maps approximate screen location based on gaze information
-- Uses outlier filtering and weighted averaging for precision
-- Saves/loads calibration data for reuse
+### 2. Calibration (`calibration.py`) 
+- Shows 5 dots on your screen
+- You look at each dot for a few seconds
+- Maps where you're looking to screen coordinates
+- Saves calibration so you don't have to redo it
 
-### 3. Data Processing Module (`data_processing.py`)
-**Purpose**: Preprocesses and analyzes gaze/pupil data for therapy insights
-- Smoothes collected data from acquisition module
-- Compares data with calibrated screen information
-- Calculates frequency and accuracy of center screen focus
-- Tracks look-away patterns, pupillary changes, blink analysis
-- Generates comprehensive anxiety indicators and scoring
+### 3. Data Analysis (`data_processing.py`)
+- Analyzes your eye movements
+- Tracks how often you look at the center vs edges
+- Counts blinks and eye movement speed
+- Generates an anxiety score
 
-### 4. Visualization and UI Module (`visualization_ui.py`)
-**Purpose**: Displays information clearly using Tkinter
-- Backs calibration module with calibration point display
-- Shows real-time monitoring interface with metrics
-- Displays test results with personalized encouragement messages
-- Creates matplotlib visualizations of session data
-- Provides user-friendly dialogs and feedback
+### 4. User Interface (`visualization_ui.py`)
+- Shows the calibration dots
+- Displays real-time tracking info
+- Shows your results at the end
+- Creates some charts if you want
 
 ## Usage
 

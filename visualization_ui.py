@@ -15,7 +15,7 @@ class VisualizationUI:
         
     def show_calibration_interface(self, calibration_module, data_acquisition):
         self.root = tk.Tk()
-        self.root.title("Precision Gaze Calibration")
+        self.root.title("Eye Calibration")
         self.root.attributes('-fullscreen', True)
         self.root.configure(bg='black')
         
@@ -28,22 +28,20 @@ class VisualizationUI:
         for i, (x, y) in enumerate(points):
             print(f"Calibrating point {i+1}/5 at ({x}, {y})")
             
-            # Show calibration point with instructions
             self._display_calibration_point(x, y, i+1)
             
-            # Allow time for user to focus
+            # Wait for user to focus
             time.sleep(3)
             
-            # Collect samples
             samples = calibration_module.collect_samples_for_point(data_acquisition, x, y)
             
             # Process samples
             if calibration_module.process_calibration_point(samples, x, y):
                 successful_points += 1
-                print(f"  Successfully calibrated point {i+1} with {len(samples)} samples")
+                print(f"  Point {i+1} calibrated! Got {len(samples)} samples")
                 self._show_success_feedback(x, y)
             else:
-                print(f"  Failed to calibrate point {i+1}")
+                print(f"  Point {i+1} failed calibration")
                 self._show_failure_feedback(x, y)
             
             time.sleep(0.5)  # Brief pause between points
@@ -57,15 +55,14 @@ class VisualizationUI:
         # Draw calibration point
         self.canvas.create_oval(x-25, y-25, x+25, y+25, fill='red', outline='white', width=3)
         
-        # Add instructions
-        self.canvas.create_text(x, y-70, text=f"Focus on the RED DOT\nPoint {point_num}/5", 
+        self.canvas.create_text(x, y-70, text=f"Focus on the dot:\nPoint {point_num}/5", 
                                fill='white', font=('Arial', 18), justify='center')
-        self.canvas.create_text(x, y+70, text="Keep your head still\nLook directly at the center", 
+        self.canvas.create_text(x, y+70, text="Try to keep your head still", 
                                fill='gray', font=('Arial', 12), justify='center')
         
         # Add progress indicator
         self.canvas.create_text(self.screen_width//2, 50, 
-                               text=f"Calibration Progress: {point_num}/5", 
+                               text=f"Progress: {point_num}/5", 
                                fill='white', font=('Arial', 16))
         
         self.root.update()
@@ -85,28 +82,25 @@ class VisualizationUI:
         root.withdraw()
         
         response = messagebox.askyesno("Calibration", 
-                                     "Gaze calibration will improve accuracy.\n\n"
-                                     "You'll see 5 red dots on screen.\n"
-                                     "Look at each dot when it appears.\n"
-                                     "Keep your head still.\n\n"
-                                     "Run calibration now?")
+                                     "You'll see 5 dots on the screen.\n"
+                                     "Focus on each dot as it appears.\n\n"
+                                     "Ready to start?")
         root.destroy()
         return response
     
     def create_monitoring_display(self, frame, gaze_position, analysis_data):
         display_frame = frame.copy()
         
-        # Status info
+        # Status info - make it more casual
         status_color = (0, 255, 0) if analysis_data.get('pupils_located', False) else (0, 0, 255)
-        status_text = "Pupils: " + ("✓" if analysis_data.get('pupils_located', False) else "✗")
+        status_text = "Eyes: " + ("OK" if analysis_data.get('pupils_located', False) else "Lost")
         cv2.putText(display_frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_color, 2)
         
-        # Gaze position
         if gaze_position:
-            cv2.putText(display_frame, f"Gaze: ({gaze_position[0]}, {gaze_position[1]})", 
+            cv2.putText(display_frame, f"Looking at: ({gaze_position[0]}, {gaze_position[1]})", 
                        (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
         else:
-            cv2.putText(display_frame, "Gaze: Not calibrated", 
+            cv2.putText(display_frame, "Looking at: Unknown", 
                        (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (128, 128, 128), 1)
         
         # Real-time metrics
@@ -127,16 +121,14 @@ class VisualizationUI:
     
     def show_results_dialog(self, analysis_data):
         root = tk.Tk()
-        root.title("Session Results")
+        root.title("How did I do?")
         root.geometry("600x700")
         
         # Create scrollable text widget
         frame = ttk.Frame(root, padding="10")
         frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
-        # Results text
         result_text = self._format_results_text(analysis_data)
-        
         text_widget = tk.Text(frame, wrap=tk.WORD, width=70, height=35)
         scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
@@ -147,7 +139,6 @@ class VisualizationUI:
         text_widget.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
         
-        # Add encouragement message
         encouragement = self._generate_encouragement_message(analysis_data)
         
         encouragement_label = ttk.Label(frame, text=encouragement, 
@@ -186,11 +177,11 @@ class VisualizationUI:
         
         indicators = analysis_data.get('indicators', [])
         if indicators:
-            result += "Anxiety Indicators:\n"
+            result += "Notable concerns:\n"
             for indicator in indicators:
                 result += f"• {indicator}\n"
         else:
-            result += "No anxiety indicators detected.\n"
+            result += "Nothing concerning detected.\n"
         
         return result
     
@@ -200,31 +191,31 @@ class VisualizationUI:
         center_focus = analysis_data.get('center_gaze_ratio', 0)
         
         if anxiety_score == 0:
-            return "🎉 Excellent! You maintained great composure throughout the session. Your eye movement patterns show minimal stress indicators."
+            return "Nice job! You stayed pretty calm throughout the session."
         
         elif anxiety_score <= 3:
-            return "👍 Good work! You showed only mild anxiety indicators. With practice, you can continue to improve your focus and relaxation."
+            return "Pretty good! Only a few minor signs of stress."
         
         elif anxiety_score <= 6:
             if center_focus > 0.5:
-                return "💪 You maintained good center focus! While some anxiety indicators were present, your ability to stay focused is a great strength to build on."
+                return "Good! Even with some stress, you kept looking at the center."
             else:
-                return "🌟 Remember, it's normal to feel anxious. Try practicing center focus exercises - your awareness is the first step to improvement!"
+                return "It's totally normal to feel anxious. Maybe try to focus on breathing?"
         
         elif anxiety_score <= 10:
-            return "🤗 This session shows areas for growth. Consider practicing relaxation techniques and gradual exposure to build confidence. Every step counts!"
+            return "Hang in there! Everyone gets anxious sometimes. Practice makes it easier."
         
         else:
-            return "💝 Thank you for completing this challenging session. High anxiety is manageable with proper support and practice. Consider discussing these results with a counselor."
+            return "Thanks you for your time! Remember, if you're feeling anxious, talking to someone might help."
     
     def show_monitoring_prompt(self):
         root = tk.Tk()
         root.withdraw()
         
         response = messagebox.askyesno("Start Monitoring", 
-                                     "Ready to start monitoring?\n\n"
-                                     "The system will track eye movements for anxiety indicators.\n"
-                                     "Press ESC anytime to stop.")
+                                     "Ready to start?\n\n"
+                                     "I'll track your eye movements.\n"
+                                     "Hit ESC to stop anytime.")
         root.destroy()
         return response
     

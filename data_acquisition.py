@@ -33,7 +33,7 @@ class DataAcquisition:
         if not ret:
             return None
             
-        # Process frame with GazeTracking
+        # Process frame
         self.gaze_tracker.refresh(frame)
         
         # Extract raw pupil and gaze data

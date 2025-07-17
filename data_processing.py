@@ -35,7 +35,6 @@ class DataProcessing:
         self.edge_zone_margin = 100   # pixels from edges
         self.saccade_velocity_threshold = 300  # pixels per second
         
-        # Smoothing and filtering
         self.recent_gazes = deque(maxlen=10)  # For velocity calculation
         self.gaze_smoothing_window = 5
         self.smoothed_positions = deque(maxlen=self.gaze_smoothing_window)
@@ -49,7 +48,7 @@ class DataProcessing:
         if len(self.smoothed_positions) < 3:
             return gaze_position
             
-        # Simple moving average for smoothing
+        # Moving average
         avg_x = sum(pos[0] for pos in self.smoothed_positions) / len(self.smoothed_positions)
         avg_y = sum(pos[1] for pos in self.smoothed_positions) / len(self.smoothed_positions)
         
@@ -100,10 +99,7 @@ class DataProcessing:
                 if velocity > self.saccade_velocity_threshold:
                     self.saccade_count += 1
         
-        # Update recent gaze history
         self.recent_gazes.append((smoothed_position, timestamp))
-        
-        # Analyze gaze zones
         self._analyze_gaze_zones(smoothed_position)
     
     def _analyze_gaze_zones(self, gaze_position):
@@ -123,8 +119,6 @@ class DataProcessing:
     
     def process_frame(self, frame_data, gaze_position=None):
         self.frame_count += 1
-        
-        # Process blink data
         self.process_blink_data(frame_data)
         
         # Process gaze position if available
@@ -145,7 +139,7 @@ class DataProcessing:
         if not center_positions:
             return 0.0
             
-        # Calculate accuracy as inverse of average distance from center
+        # Calculate accuracy 
         avg_distance = np.mean(center_positions)
         max_distance = self.center_zone_radius
         accuracy = (max_distance - avg_distance) / max_distance
