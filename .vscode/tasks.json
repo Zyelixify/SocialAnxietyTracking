@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Simple Face Tracking Demo",
+			"type": "shell",
+			"command": "C:/Users/zyeli/Stuff/coding/University/SocialAnxietyTracking/.venv/Scripts/python.exe",
+			"args": [
+				"simple_demo.py"
+			],
+			"group": "run",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

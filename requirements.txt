@@ -1,0 +1,4 @@
+# Core dependencies for Social Anxiety Tracking
+numpy==1.26.4
+opencv-python==4.10.0.82
+matplotlib>=3.7.0
