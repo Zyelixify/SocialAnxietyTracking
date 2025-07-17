@@ -1,4 +1,4 @@
-# Eye Tracker for Social Anxiety
+# Eye Tracker for Social Anxiety Tracking
 
 A simple app that tracks eye movements to detect signs of social anxiety.
 
@@ -11,7 +11,7 @@ A simple app that tracks eye movements to detect signs of social anxiety.
 
 ### 2. Calibration (`calibration.py`) 
 - Shows 5 dots on your screen
-- You look at each dot for a few seconds
+- You focus at each dot for a few seconds
 - Maps where you're looking to screen coordinates
 - Saves calibration so you don't have to redo it
 
@@ -25,7 +25,7 @@ A simple app that tracks eye movements to detect signs of social anxiety.
 - Shows the calibration dots
 - Displays real-time tracking info
 - Shows your results at the end
-- Creates some charts if you want
+- Plots findings into charts if desired
 
 ## Usage
 
@@ -34,7 +34,7 @@ Run the complete application:
 python main.py
 ```
 
-Or use individual modules programmatically:
+The modules can also be used or expanded upon independently as needed:
 ```python
 from data_acquisition import DataAcquisition
 from calibration import CalibrationModule
@@ -74,5 +74,3 @@ main.py
 ├── data_processing.py (NumPy, Collections)
 └── visualization_ui.py (Tkinter, Matplotlib, CV2)
 ```
-
-Each module is designed to be independent with clear interfaces between components.
